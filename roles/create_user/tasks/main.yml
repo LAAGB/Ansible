@@ -1,5 +1,5 @@
 ---
-# This script makes a new user and adds them to the sudoers file. It also generates a random password for the new user.
+# This script makes a new user, adds them to the sudoers file, generates a SSH key, and a random password for the new user.
 # When they attemp to login they will be required to change his/her password on first logon.
 # lastly this is the path to create the file. roles/create_user/tasks/main.yml
 
