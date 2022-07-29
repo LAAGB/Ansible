@@ -1,0 +1,34 @@
+---
+# This script makes a new user and adds them to the sudoers file. It also generates a random password for the new user.
+# When they attemp to login they will be required to change his/her password on first logon.
+# lastly this is the path to create the file. roles/create_user/tasks/main.yml
+
+- name: Generates a 16 character password. To create password make sure makepasswd is installed with sudo apt-get install makepasswd (Ubuntu)
+  shell: makepasswd --chars 16
+  register: user_password
+
+- name: Generate encrypted password. You may need to run sudo apt install whois to have mkpasswd.
+  shell: mkpasswd --method=SHA-512 {{ user_password.stdout }}
+  register: encrypted_user_password
+
+- name: Create user account, adds user to the sudoers file, and generates ssh key.:
+  user: name={{ new_user_name }}
+        password={{ encrypted_user_password.stdout }}
+        state=present
+        groups=sudo
+        shell="/bin/bash"
+        update_password=always
+        generate_ssh_key=yes
+        ssh_key_bits=2048
+        ssh_key_file=/home/{{ new_user_name }}/.ssh/id_rsa
+        
+  when: new_user_name is defined
+  register: user_created
+
+- name: Force user to change password
+  shell: chage -d 0 {{ new_user_name }}
+  when: user_created.changed
+
+- name: User created
+  when: user_created.changed
+  debug: msg="Password for {{ new_user_name }} is {{ user_password.stdout }}"
