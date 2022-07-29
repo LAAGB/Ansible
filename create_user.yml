@@ -1,0 +1,9 @@
+---
+# create_user playbook
+
+- hosts: all
+  become: True
+  user: ansible
+
+  roles:
+    - create_user
